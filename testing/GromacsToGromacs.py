@@ -52,11 +52,14 @@ if __name__ == "__main__":
     from optparse import OptionParser
 
     parser = OptionParser()
-    parser.add_option('-p', type='str', dest='top', default='micelle/micelle.top',
+    #parser.add_option('-p', type='str', dest='top', default='micelle/micelle.top',
+    parser.add_option('-p', type='str', dest='top', default='system2/system2_GMX.top',
             help="Topology .top file")
-    parser.add_option('-c', type='str', dest='gro', default='micelle/micelle.gro',
+    #parser.add_option('-c', type='str', dest='gro', default='micelle/micelle.gro',
+    parser.add_option('-c', type='str', dest='gro', default='system2/system2_GMX.gro',
             help="Structure .gro file")
-    parser.add_option('-n', type='str', dest='name', default='micelle',
+    #parser.add_option('-n', type='str', dest='name', default='micelle',
+    parser.add_option('-n', type='str', dest='name', default='system2_GMX',
             help="Name of system")
     parser.add_option('-g', type='str', dest='gropath', default='',
             help="path for GROMACS binary")
@@ -78,17 +81,19 @@ if __name__ == "__main__":
     energy = options.energy
     clean = options.clean
 
-    rms, e_in, e_out = gromacs_to_gromacs(top, gro, name, gropath, grosuff, energy, clean)
+    results = gromacs_to_gromacs(top, gro, name, gropath, grosuff, energy, clean)
 
-    print "======================================================================="
-    print "Summary statistics"
-    types = ['Bond', 'Angle', 'Proper Dih.', 'Ryckaert-Bell.', 'LJ-14', 'Coulomb-14',
-            'LJ (SR)', 'Disper. corr.', 'Coulomb (SR)', 'Coul. recip.', 'Potential',
-            'Kinetic En.', 'Total Energy', 'Temperature']
+    if energy:
+        rms, e_in, e_out = results
+        print "======================================================================="
+        print "Summary statistics"
+        types = ['Bond', 'Angle', 'Proper Dih.', 'Ryckaert-Bell.', 'LJ-14', 'Coulomb-14',
+                'LJ (SR)', 'Disper. corr.', 'Coulomb (SR)', 'Coul. recip.', 'Potential',
+                'Kinetic En.', 'Total Energy', 'Temperature']
 
-    print "%20s %12s %12s %12s" % ("Type", "Input", "Output", "Diff")
-    for name, i, o in zip(types, e_in, e_out):
-        print "%20s %15.8f %15.8f %15.8f" % (name, i, o, i-o)
+        print "%20s %12s %12s %12s" % ("Type", "Input", "Output", "Diff")
+        for name, i, o in zip(types, e_in, e_out):
+            print "%20s %15.8f %15.8f %15.8f" % (name, i, o, i-o)
 
-    print " "
-    print "RMS signed error: %10.5f" % (rms)
+        print " "
+        print "RMS signed error: %10.5f" % (rms)

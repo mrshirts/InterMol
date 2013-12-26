@@ -36,7 +36,6 @@ class Atom(object):
                         0 * units.kilojoules_per_mole / units.nanometers,
                         0 * units.kilojoules_per_mole / units.nanometers]
 
-        # These will be added after the ctools is read in and come from [ atomtypes ]
         self._atomtype = dict()
         self.bondtype = None
         self.Z = None

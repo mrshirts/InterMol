@@ -1,4 +1,4 @@
-from collections import deque
+from collections import deque, defaultdict
 import pdb
 
 from intermol.Atom import *
@@ -16,34 +16,76 @@ def readStructure(filename):
     lines = list(fd)
     fd.close()
 
+    # struct to count number of a moleculetype already added
+    count_mols = dict()
+    for moleculetype in System._sys._molecules:
+        count_mols[moleculetype] = 0
+
+    #indices = dict()
+    #line_num = 2
+    #for mol_name, mol_num, mol_len in System._sys._components:
+    #    if mol_name in indices:
+    #        pass
+    #    else:
+    #        end = line_num + mol_num * mol_len
+    #        indices[mol_name] = (line_num, end)
+    #        line_num = end
+
+    #pdb.set_trace()
     i = 2
-    for moleculetype in System._sys._molecules.values():
-        for molecule in moleculetype.moleculeSet:
+    # only loop through molecules actually present in system
+    #for moleculetype in System._sys._molecules.values():
+    pdb.set_trace()
+    for name, total_mols, mol_len in System._sys._components:
+        moleculetype = System._sys._molecules[name]
+        #try:
+        #    span = component_indices[moleculetype.name]
+        #except:
+        #    # molecule defined in .top but not in system
+        #    continue
+
+        #if isinstance(span, tuple):
+        #    i = span[0]
+        #    end = span[1]
+        #else:
+        #    pass
+        # keep track of how many read for cases with multiple of same name
+        already_read = count_mols[moleculetype.name]
+        #for molecule in moleculetype.moleculeSet:
+        for m in xrange(already_read, total_mols + already_read):
+            molecule = moleculetype.moleculeSet[m]
+            count_mols[moleculetype.name] += 1
             for atom in molecule._atoms:
                 if lines[i]:
-                    atom.residueIndex=int(lines[i][0:5])
-                    atom.residueName = lines[i][6:10].strip()
-                    atom.atomName = lines[i][11:15].strip()
-                    atom.atomIndex = int(lines[i][16:20])
-                    position = [None, None, None]
-                    position[0] = float(lines[i][20:28]) * units.nanometers
-                    position[1] = float(lines[i][28:36]) * units.nanometers
-                    position[2] = float(lines[i][36:44]) * units.nanometers
-                    atom.setPosition(position[0], position[1], position[2])
-                    velocity = [None, None, None]
+                    line = lines[i]
+                    atom.residueIndex=int(line[0:5])
+                    atom.residueName = line[5:10].strip()
+                    atom.atomName = line[10:15].strip()
+                    atom.atomIndex = int(line[15:20])
+                    x = float(line[20:28]) * units.nanometers
+                    y = float(line[28:36]) * units.nanometers
+                    z = float(line[36:44]) * units.nanometers
+                    atom.setPosition(x, y, z)
                     try:
-                        velocity[0]=float(lines[i][44:52]) * units.nanometers / units.picoseconds
-                        velocity[1]=float(lines[i][52:60]) * units.nanometers / units.picoseconds
-                        velocity[2]=float(lines[i][60:68]) * units.nanometers / units.picoseconds
+                        vx = float(line[44:52]) * units.nanometers / units.picoseconds
+                        vy = float(line[52:60]) * units.nanometers / units.picoseconds
+                        vz = float(line[60:68]) * units.nanometers / units.picoseconds
                     except:
-                        velocity[0] = 0.0 * units.nanometers / units.picoseconds
-                        velocity[1] = 0.0 * units.nanometers / units.picoseconds
-                        velocity[2] = 0.0 * units.nanometers / units.picoseconds
-                    atom.setVelocity(velocity[0], velocity[1], velocity[2])
+                        vx = 0.0 * units.nanometers / units.picoseconds
+                        vy = 0.0 * units.nanometers / units.picoseconds
+                        vz = 0.0 * units.nanometers / units.picoseconds
+                    atom.setVelocity(vx, vy, vz)
                     i += 1
-
                 else:
-                    sys.exit()
+                    raise Exception("Reached end of .gro file before all atoms were populated.")
+        for molecule in moleculetype.moleculeSet:
+            for atom in molecule._atoms:
+                print atom._position
+
+    #for moleculetype in System._sys._molecules.values():
+    #    for molecule in moleculetype.moleculeSet:
+    #        for atom in molecule._atoms:
+    #            print atom._position
 
     rawBoxVector = lines[i].split()
     v1x = None

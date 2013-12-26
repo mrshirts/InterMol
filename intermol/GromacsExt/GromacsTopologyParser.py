@@ -1053,12 +1053,20 @@ class GromacsTopologyParser(object):
                     if verbose:
                         print "Parsing [ molecules ]..."
                     expanded.pop(i)
+
                     while i < len(expanded) and not (expanded[i].count('[')):
                         split = expanded.pop(i).split()
-                        tempMolecule = System._sys._molecules[split[0]].moleculeSet[0]
-                        max = int(split[1])
-                        n = 1
-                        while n < max:
+                        mol_name = split[0]
+                        mol_num = int(split[1])
+
+                        tempMolecule = System._sys._molecules[mol_name].moleculeSet[0]
+                        mol_len = len(tempMolecule._atoms)
+                        System._sys._components.append((mol_name, mol_num, mol_len))
+                        if len(System._sys._molecules[mol_name].moleculeSet) > 1:
+                            n = 0
+                        else:
+                            n = 1
+                        while n < mol_num:
                             mol = copy.deepcopy(tempMolecule)
                             System._sys.addMolecule(mol)
                             n += 1
@@ -1321,7 +1329,7 @@ class GromacsTopologyParser(object):
                                atom._charge[1]._value, 
                                atom._mass[1]._value))
                 except:
-                     lines.append('%6d%18s%6d%8s%8s%6d%18.8f%18.8f\n'
+                    lines.append('%6d%18s%6d%8s%8s%6d%18.8f%18.8f\n'
                              % (count, 
                                 atom._atomtype[0], 
                                 atom.residueIndex, 

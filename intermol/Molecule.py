@@ -47,4 +47,4 @@ class Molecule(object):
         return self._atoms
 
     def __repr__(self):
-        return self.name
+        return "Mol: " + self.name
