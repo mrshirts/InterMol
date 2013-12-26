@@ -35,7 +35,6 @@ def readStructure(filename):
     i = 2
     # only loop through molecules actually present in system
     #for moleculetype in System._sys._molecules.values():
-    pdb.set_trace()
     for name, total_mols, mol_len in System._sys._components:
         moleculetype = System._sys._molecules[name]
         #try:
@@ -54,6 +53,7 @@ def readStructure(filename):
         #for molecule in moleculetype.moleculeSet:
         for m in xrange(already_read, total_mols + already_read):
             molecule = moleculetype.moleculeSet[m]
+            pdb.set_trace()
             count_mols[moleculetype.name] += 1
             for atom in molecule._atoms:
                 if lines[i]:
