@@ -82,10 +82,10 @@ def readStructure(filename):
             for atom in molecule._atoms:
                 print atom._position
 
-    #for moleculetype in System._sys._molecules.values():
-    #    for molecule in moleculetype.moleculeSet:
-    #        for atom in molecule._atoms:
-    #            print atom._position
+    for moleculetype in System._sys._molecules.values():
+        for molecule in moleculetype.moleculeSet:
+            for atom in molecule._atoms:
+                print atom._position
 
     rawBoxVector = lines[i].split()
     v1x = None
